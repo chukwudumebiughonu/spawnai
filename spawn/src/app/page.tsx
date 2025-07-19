@@ -1,13 +1,22 @@
+import { Suspense } from "react";
 
-const Page = async () => {;
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+
+import { getQueryClient, trpc } from "@/trpc/server";
+
+import { Client } from "./client";
+
+
+const Page = async () => {
+  const queryClient = getQueryClient();
+   void queryClient.prefetchQuery(trpc.createAI.queryOptions({text: "Chukwudumebi"}));
   return (
-    <div className="flex h-screen w-full items-center justify-center">
-      <div className="flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold">Welcome to Spawn</h1>
-        <p className="mt-4 text-lg">Your AI-powered development assistant.</p>
-      </div>
-    </div>
-  )
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Client />
+      </Suspense>
+    </HydrationBoundary>
+  );
 }
 
 export default Page;
